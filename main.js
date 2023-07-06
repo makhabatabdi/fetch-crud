@@ -9,11 +9,33 @@ const modalDescription = document.querySelector(".input-editDescription");
 const btnSave = document.querySelector(".btn-save");
 let newCard = "";
 
+// function getPosts() {
+//   fetch(API)
+//     .then((res) => res.json())
+//     .then((posts) => {
+//       posts.slice(0, 12).map((post) => {
+//         return (newCard += `<div class="card" data-id="${post.id}" style="width: 20rem">
+//           <div class="card-body">
+//             <h5 class="card-title">${post.title}</h5>
+//             <p class="card-text">
+//               ${post.body}
+//             </p>
+//             <button class="btn btn-primary btn-edit" data-id="${post.id}">Edit</button>
+//             <button class="btn btn-primary btn-delete" data-id="${post.id}">Delete</button>
+//           </div>
+//         </div>`);
+//       });
+//       cards.innerHTML = newCard;
+//     })
+//     .catch((error) => console.log(error));
+// }
+
 function getPosts() {
-  fetch(API)
-    .then((res) => res.json())
-    .then((posts) => {
-      posts.slice(0, 12).map((post) => {
+  axios
+    .get(API)
+    .then((response) => {
+      console.log(response, "response");
+      response.data.slice(0, 12).map((post) => {
         return (newCard += `<div class="card" data-id="${post.id}" style="width: 20rem">
           <div class="card-body">
             <h5 class="card-title">${post.title}</h5>
@@ -44,12 +66,24 @@ cards.addEventListener("click", (e) => {
   }
 });
 
+// function deletePost(id, cardElement) {
+//   fetch(API + "/" + id, {
+//     method: "DELETE",
+//   })
+//     .then((res) => {
+//       if (res.ok) {
+//         console.log("Data deleted");
+//         cardElement.remove();
+//       }
+//     })
+//     .catch((error) => console.log(error));
+// }
+
 function deletePost(id, cardElement) {
-  fetch(API + "/" + id, {
-    method: "DELETE",
-  })
-    .then((res) => {
-      if (res.ok) {
+  axios
+    .delete(API + "/" + id)
+    .then((response) => {
+      if (response.status === 200) {
         console.log("Data deleted");
         cardElement.remove();
       }
@@ -57,38 +91,68 @@ function deletePost(id, cardElement) {
     .catch((error) => console.log(error));
 }
 
+// function addPost(title, description) {
+//   fetch(API, {
+//     method: "POST",
+//     body: JSON.stringify({
+//       title: title,
+//       body: description,
+//       userId: 1,
+//       id: Date.now(),
+//     }),
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   })
+//     .then((res) => {
+//       if (res.ok) {
+//         console.log("Post added");
+//         inputTitle.value = "";
+//         inputDescription.value = "";
+//         return res.json();
+//       } else {
+//         throw new Error("Failed to add");
+//       }
+//     })
+//     .then((post) => {
+//       const newCardHTML = `<div class="card" style="width: 20rem">
+//           <div class="card-body">
+//             <h5 class="card-title">${post.title}</h5>
+//             <p class="card-text">
+//               ${post.body}
+//             </p>
+//             <button class="btn btn-primary btn-edit" data-id="${post.id}">Edit</button>
+//             <button class="btn btn-primary btn-delete" data-id="${post.id}">Delete</button>
+//           </div>
+//         </div>`;
+//       cards.insertAdjacentHTML("afterbegin", newCardHTML);
+//     })
+//     .catch((error) => console.log(error));
+// }
+
 function addPost(title, description) {
-  fetch(API, {
-    method: "POST",
-    body: JSON.stringify({
+  axios
+    .post(API, {
       title: title,
       body: description,
       userId: 1,
       id: Date.now(),
-    }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((res) => {
-      if (res.ok) {
+    })
+    .then((response) => {
+      if (response.status === 201) {
         console.log("Post added");
         inputTitle.value = "";
         inputDescription.value = "";
-        return res.json();
-      } else {
-        throw new Error("Failed to add");
       }
-    })
-    .then((post) => {
+      console.log(response, "one response");
       const newCardHTML = `<div class="card" style="width: 20rem">
           <div class="card-body">
-            <h5 class="card-title">${post.title}</h5>
+            <h5 class="card-title">${response.data.title}</h5>
             <p class="card-text">
-              ${post.body}
+              ${response.data.body}
             </p>
-            <button class="btn btn-primary btn-edit" data-id="${post.id}">Edit</button>
-            <button class="btn btn-primary btn-delete" data-id="${post.id}">Delete</button>
+            <button class="btn btn-primary btn-edit" data-id="${response.data.id}">Edit</button>
+            <button class="btn btn-primary btn-delete" data-id="${response.data.id}">Delete</button>
           </div>
         </div>`;
       cards.insertAdjacentHTML("afterbegin", newCardHTML);
@@ -103,24 +167,46 @@ addButton.addEventListener("click", (e) => {
   addPost(newTitle, newDescription);
 });
 
+// function updatePost(title, description, id) {
+//   const cardElement = document.querySelector(`[data-id="${id}"]`);
+//   fetch(API + "/" + id, {
+//     method: "PUT",
+//     body: JSON.stringify({
+//       title: title,
+//       body: description,
+//       id: id,
+//       userId: 1,
+//     }),
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   })
+//     .then((res) => {
+//       return res.json();
+//     })
+//     .then((updatePost) => {
+//       const cardTitle = cardElement.querySelector(".card-title");
+//       const cardBody = cardElement.querySelector(".card-text");
+//       cardTitle.textContent = updatePost.title;
+//       cardBody.textContent = updatePost.body;
+//       modal.style.display = "none";
+//       modalTitle.value = "";
+//       modalDescription.value = "";
+//     })
+//     .catch((error) => console.log(error));
+// }
+
 function updatePost(title, description, id) {
   const cardElement = document.querySelector(`[data-id="${id}"]`);
-  fetch(API + "/" + id, {
-    method: "PUT",
-    body: JSON.stringify({
+  axios
+    .put(API + "/" + id, {
       title: title,
       body: description,
       id: id,
       userId: 1,
-    }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((res) => {
-      return res.json();
     })
-    .then((updatePost) => {
+    .then((response) => {
+      const updatePost = response.data;
       const cardTitle = cardElement.querySelector(".card-title");
       const cardBody = cardElement.querySelector(".card-text");
       cardTitle.textContent = updatePost.title;
@@ -137,15 +223,25 @@ btnSave.addEventListener("click", (e) => {
   updatePost(modalTitle.value, modalDescription.value, id);
 });
 
+// function getPost(id) {
+//   fetch(API + "/" + id, {
+//     method: "GET",
+//   })
+//     .then((res) => res.json())
+//     .then((data) => {
+//       modalTitle.value = data.title;
+//       modalDescription.value = data.body;
+//       btnSave.setAttribute("data-id", data.id);
+//     })
+//     .catch((error) => console.log(error));
+// }
+
 function getPost(id) {
-  fetch(API + "/" + id, {
-    method: "GET",
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      modalTitle.value = data.title;
-      modalDescription.value = data.body;
-      btnSave.setAttribute("data-id", data.id);
+  axios(API + "/" + id)
+    .then((response) => {
+      modalTitle.value = response.data.title;
+      modalDescription.value = response.data.body;
+      btnSave.setAttribute("data-id", response.data.id);
     })
     .catch((error) => console.log(error));
 }
